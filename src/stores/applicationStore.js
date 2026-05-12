@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 export const STATUS = {
   APPROVED:  'Approved',
@@ -44,8 +44,15 @@ const seedApplications = [
 ]
 
 export const useApplicationStore = defineStore('applications', () => {
-  const applications = ref([...seedApplications])
-  const searchQuery  = ref('')
+  const stored = localStorage.getItem('applications')
+  const applications = ref(stored ? JSON.parse(stored) : [...seedApplications])
+  const searchQuery = ref('')
+
+  watch(
+    applications,
+    (val) => localStorage.setItem('applications', JSON.stringify(val)),
+    { deep: true }
+  )
 
   const filteredApplications = computed(() => {
     const q = searchQuery.value.toLowerCase()
@@ -73,5 +80,5 @@ export const useApplicationStore = defineStore('applications', () => {
     )
   }
 
-  return { applications, searchQuery, filteredApplications, addApplication ,deleteApplication}
+  return { applications, searchQuery, filteredApplications, addApplication, deleteApplication }
 })
